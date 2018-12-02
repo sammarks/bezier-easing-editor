@@ -35,6 +35,7 @@ export default class BezierEditor extends Component {
     onChange: PropTypes.func,
     width: PropTypes.number,
     height: PropTypes.number,
+    verticalFlip: PropTypes.bool,
     padding: PropTypes.array,
     handleRadius: PropTypes.number,
     style: PropTypes.object,
@@ -56,6 +57,7 @@ export default class BezierEditor extends Component {
     value: [0.25, 0.25, 0.75, 0.75],
     width: 300,
     height: 300,
+    verticalFlip: false,
     padding: [25, 5, 25, 18],
     progress: 0,
     background: "#fff",
@@ -106,7 +108,7 @@ export default class BezierEditor extends Component {
       const value = [].concat(this.props.value);
       const [x, y] = this.positionForEvent(e);
       value[i] = this.inversex(x);
-      value[i + 1] = this.inversey(y);
+      value[i + 1] = this.props.verticalFlip ? 1 - this.inversey(y) : this.inversey(y);
       this.props.onChange(value);
     }
   };
@@ -179,6 +181,10 @@ export default class BezierEditor extends Component {
       xTo: x(1),
       yTo: y(1),
     };
+    if (this.props.verticalFlip) {
+      sharedProps.yFrom = y(1);
+      sharedProps.yTo = y(0);
+    }
 
     const cursor = { ...BezierEditor.propTypes.pointers, ...pointers };
 
