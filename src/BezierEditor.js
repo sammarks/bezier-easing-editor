@@ -51,6 +51,11 @@ export default class BezierEditor extends Component {
     textStyle: PropTypes.object,
     progressColor: PropTypes.string,
     readOnly: PropTypes.bool,
+    pinchIn: PropTypes.bool,
+    pinchOut: PropTypes.bool,
+    pinchIntensity: PropTypes.number,
+    pinchColor: PropTypes.string,
+    pinchWidth: PropTypes.number,
   };
 
   static defaultProps = {
@@ -65,8 +70,10 @@ export default class BezierEditor extends Component {
     gridColor: "#eee",
     curveColor: "#333",
     progressColor: "#ccc",
+    pinchColor: '#ccc',
     handleColor: "#f00",
     curveWidth: 2,
+    pinchWidth: 2,
     handleRadius: 5,
     handleStroke: 2,
     textStyle: {
@@ -166,6 +173,8 @@ export default class BezierEditor extends Component {
       gridColor,
       curveColor,
       curveWidth,
+      pinchColor,
+      pinchWidth,
       handleColor,
       textStyle,
       progressColor,
@@ -219,6 +228,16 @@ export default class BezierEditor extends Component {
           onMouseLeave: this.onLeaveHandle2,
         };
 
+    const multiplierIn = this.props.pinchIn ? 1 - this.props.pinchIntensity : 1
+    const multiplierOut = this.props.pinchOut ? 1 - this.props.pinchIntensity : 1
+    const pinchValue = [].concat(this.props.value)
+    const intensityChange = -0.1 * this.props.pinchIntensity
+    if (this.props.pinchIn) {
+      pinchValue[1] += intensityChange
+    } else if (this.props.pinchOut) {
+      pinchValue[3] += intensityChange
+    }
+
     return (
       <svg
         ref="root"
@@ -245,6 +264,16 @@ export default class BezierEditor extends Component {
           value={value}
           curveColor={curveColor}
           curveWidth={curveWidth}
+        />
+        <Curve
+          {...sharedProps}
+          xFrom={x(0.05 * multiplierIn)}
+          xTo={x((0.05 * multiplierOut) + 1)}
+          yFrom={y((this.props.verticalFlip ? 1 : 0) + (0.1 * multiplierIn * (this.props.verticalFlip ? 1 : -1)))}
+          yTo={y((this.props.verticalFlip ? 0 : 1) + (0.1 * multiplierOut * (this.props.verticalFlip ? 1 : -1)))}
+          value={pinchValue}
+          curveColor={pinchColor}
+          curveWidth={pinchWidth}
         />
         {this.props.children}
         {readOnly
